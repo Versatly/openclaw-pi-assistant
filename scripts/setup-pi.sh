@@ -142,8 +142,6 @@ WHISPER_PATH=$HOME/whisper.cpp/build/bin/whisper-cli
 WHISPER_MODEL=$HOME/whisper.cpp/models/ggml-base.en.bin
 PIPER_PATH=$HOME/piper/piper
 PIPER_MODEL=$HOME/piper/models/en_US-lessac-medium.onnx
-OLLAMA_URL=http://127.0.0.1:11434
-OLLAMA_MODEL=llama3.1:8b
 ENVEOF
   ok "Created .env file — edit as needed"
 fi

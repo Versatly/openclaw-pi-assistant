@@ -96,7 +96,7 @@ async function handleStopRecording(ws, session) {
     console.log('Transcript:', transcript);
     send(ws, { type: 'transcript', text: transcript });
 
-    // Chat with OpenClaw/Ollama
+    // Chat with OpenClaw gateway
     session.history.push({ role: 'user', content: transcript });
 
     send(ws, { type: 'response_start' });

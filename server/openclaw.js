@@ -1,6 +1,6 @@
 // OpenClaw Gateway Client
 // The Pi talks to OpenClaw — OpenClaw handles LLM, memory, tools, everything.
-// No direct Ollama/OpenAI calls needed.
+// Pi sends messages, OpenClaw routes to the configured model (Claude, GPT, etc).
 import http from 'http';
 import https from 'https';
 
