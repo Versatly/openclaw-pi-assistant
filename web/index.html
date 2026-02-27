@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=480, height=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>OpenClaw</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header id="header">
+      <div id="status">
+        <span id="status-dot"></span>
+        <span id="status-text">Ready</span>
+      </div>
+      <div id="clock"></div>
+    </header>
+
+    <main id="main">
+      <div id="orb-container">
+        <div id="orb">
+          <div class="orb-core"></div>
+          <div class="orb-ring orb-ring-1"></div>
+          <div class="orb-ring orb-ring-2"></div>
+          <div class="orb-ring orb-ring-3"></div>
+          <div class="orb-glow"></div>
+        </div>
+      </div>
+
+      <div id="text-container">
+        <div id="transcript" class="text-area hidden">
+          <span class="label">You</span>
+          <p id="transcript-text"></p>
+        </div>
+        <div id="response" class="text-area hidden">
+          <span class="label">OpenClaw</span>
+          <p id="response-text"></p>
+        </div>
+      </div>
+    </main>
+
+    <footer id="footer">
+      <div id="hint">Tap anywhere to talk</div>
+    </footer>
+
+    <div id="tap-zone"></div>
+  </div>
+
+  <div id="error-toast" class="hidden">
+    <span id="error-message"></span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
