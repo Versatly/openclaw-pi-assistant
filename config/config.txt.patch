@@ -3,9 +3,15 @@
 # SPI for TFT touchscreen
 dtparam=spi=on
 
-# I2S audio (SPH0645 mic + PCM5102A DAC)
+# TFT display overlay (Inland 3.5" resistive touch)
+# Try these in order if one doesn't work:
+#   dtoverlay=piscreen,speed=16000000,rotate=270
+#   dtoverlay=pitft35-resistive,rotate=270,speed=32000000
+dtoverlay=pitft35-resistive,rotate=270,speed=32000000,fps=30
+
+# I2S audio (SPH0645 mic + Pirate Audio DAC/amp)
 dtoverlay=hifiberry-dac
 dtoverlay=i2s-mmap
 
-# Disable onboard audio to avoid conflicts
-dtparam=audio=off
+# Keep onboard audio as fallback (headphone jack)
+dtparam=audio=on
