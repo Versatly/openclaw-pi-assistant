@@ -1,0 +1,11 @@
+# Add to /boot/firmware/config.txt
+
+# SPI for TFT touchscreen
+dtparam=spi=on
+
+# I2S audio (SPH0645 mic + PCM5102A DAC)
+dtoverlay=hifiberry-dac
+dtoverlay=i2s-mmap
+
+# Disable onboard audio to avoid conflicts
+dtparam=audio=off

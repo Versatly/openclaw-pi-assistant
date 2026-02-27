@@ -1,0 +1,17 @@
+[Unit]
+Description=OpenClaw Pi Assistant
+After=network-online.target openclaw.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/openclaw-pi-assistant
+ExecStart=/usr/bin/node server/index.js
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=DISPLAY=:0
+
+[Install]
+WantedBy=multi-user.target
