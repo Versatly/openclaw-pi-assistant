@@ -37,6 +37,9 @@ ok "ALSA utils installed"
 # ── Sox (dev/test recording helper) ──
 sudo apt-get install -y sox libsox-fmt-all 2>/dev/null || true
 
+# ── espeak-ng (TTS fallback if gateway TTS unavailable) ──
+sudo apt-get install -y espeak-ng 2>/dev/null || true
+
 # ── whisper.cpp ──
 WHISPER_DIR="$HOME/whisper.cpp"
 if [ -f "$WHISPER_DIR/build/bin/whisper-cli" ]; then
@@ -59,7 +62,6 @@ else
   fi
 fi
 
-fi
 
 # ── ALSA config ──
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -78,7 +80,10 @@ if ! grep -q "hifiberry-dac" "$BOOT_CFG" 2>/dev/null; then
   echo "# OpenClaw Pi Assistant — I2S audio" | sudo tee -a "$BOOT_CFG"
   echo "dtoverlay=hifiberry-dac" | sudo tee -a "$BOOT_CFG"
   echo "dtoverlay=i2s-mmap" | sudo tee -a "$BOOT_CFG"
-  echo "dtparam=audio=off" | sudo tee -a "$BOOT_CFG"
+  echo "dtparam=audio=on" | sudo tee -a "$BOOT_CFG"
+  echo "" | sudo tee -a "$BOOT_CFG"
+  echo "# TFT display (Inland 3.5\" resistive touch)" | sudo tee -a "$BOOT_CFG"
+  echo "dtoverlay=pitft35-resistive,rotate=270,speed=32000000,fps=30" | sudo tee -a "$BOOT_CFG"
   ok "Boot config updated (REBOOT REQUIRED)"
 else
   ok "Boot config already has I2S overlays"
@@ -119,6 +124,18 @@ if [ ! -f "$ENV_FILE" ]; then
 PORT=3001
 WHISPER_PATH=$HOME/whisper.cpp/build/bin/whisper-cli
 WHISPER_MODEL=$HOME/whisper.cpp/models/ggml-base.en.bin
+
+# OpenClaw Gateway (Mac Mini or other host)
+OPENCLAW_HOST=192.168.1.XXX
+OPENCLAW_PORT=18789
+OPENCLAW_GATEWAY_TOKEN=
+
+# Audio devices (check with: arecord -l / aplay -l)
+MIC_DEVICE=plughw:0,0
+SPEAKER_DEVICE=plughw:0,0
+
+# Device ID (for OpenClaw node identification)
+DEVICE_ID=pi-assistant
 ENVEOF
   ok "Created .env file — edit as needed"
 fi

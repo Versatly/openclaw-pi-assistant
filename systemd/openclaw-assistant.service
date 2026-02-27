@@ -1,12 +1,13 @@
 [Unit]
 Description=OpenClaw Pi Assistant
-After=network-online.target openclaw.service
+After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
 User=pi
 WorkingDirectory=/home/pi/openclaw-pi-assistant
+EnvironmentFile=/home/pi/openclaw-pi-assistant/.env
 ExecStart=/usr/bin/node server/index.js
 Restart=always
 RestartSec=5
