@@ -1,84 +1,86 @@
-// TTS — Piper or macOS say fallback
-import { execFile, spawn } from 'child_process';
+// TTS — via OpenClaw gateway or platform fallback
+// On Pi: OpenClaw gateway handles TTS (ElevenLabs, etc)
+// Dev: macOS say as fallback
+import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { mkdtemp } from 'fs/promises';
+import { mkdtemp, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
+import http from 'http';
 
 const execFileAsync = promisify(execFile);
 
-const PIPER_PATH = process.env.PIPER_PATH || 'piper';
-const PIPER_MODEL = process.env.PIPER_MODEL || null;
-const IS_PI = process.platform === 'linux' && process.arch === 'arm64';
-
-async function which(cmd) {
-  try {
-    const { stdout } = await execFileAsync('which', [cmd]);
-    return stdout.trim();
-  } catch { return null; }
-}
+const OPENCLAW_HOST = process.env.OPENCLAW_HOST || '127.0.0.1';
+const OPENCLAW_PORT = process.env.OPENCLAW_PORT || '18789';
+const OPENCLAW_TOKEN = process.env.OPENCLAW_GATEWAY_TOKEN || '';
 
 export async function synthesize(text) {
   if (!text || !text.trim()) return null;
 
-  // Truncate very long responses for TTS
-  const maxChars = 500;
-  let ttsText = text.length > maxChars ? text.slice(0, maxChars) + '...' : text;
+  // Truncate long responses for TTS
+  const ttsText = text.length > 500 ? text.slice(0, 500) + '...' : text;
 
-  // Try Piper first (Pi), then macOS say
-  const piperBin = await which(PIPER_PATH);
-  if (piperBin) {
-    return synthesizePiper(piperBin, ttsText);
+  // Try OpenClaw TTS first
+  try {
+    return await synthesizeOpenClaw(ttsText);
+  } catch (err) {
+    console.warn('OpenClaw TTS failed, using fallback:', err.message);
   }
 
   // macOS fallback
   if (process.platform === 'darwin') {
-    return synthesizeMacOS(ttsText);
+    return await synthesizeMacOS(ttsText);
   }
 
-  // espeak fallback
-  const espeakBin = await which('espeak-ng') || await which('espeak');
-  if (espeakBin) {
-    return synthesizeEspeak(espeakBin, ttsText);
-  }
+  // espeak fallback (Pi without OpenClaw TTS)
+  try {
+    const dir = await mkdtemp(join(tmpdir(), 'oc-tts-'));
+    const outPath = join(dir, 'speech.wav');
+    await execFileAsync('espeak-ng', ['-w', outPath, ttsText], { timeout: 15000 });
+    return outPath;
+  } catch {}
 
-  console.warn('No TTS engine found');
+  console.warn('No TTS available');
   return null;
 }
 
-async function synthesizePiper(bin, text) {
-  const dir = await mkdtemp(join(tmpdir(), 'oc-tts-'));
-  const outPath = join(dir, 'speech.wav');
-
-  const args = ['--output_file', outPath];
-  if (PIPER_MODEL) {
-    args.push('--model', PIPER_MODEL);
-  }
+async function synthesizeOpenClaw(text) {
+  // OpenClaw /v1/audio/speech endpoint (OpenAI-compatible)
+  const body = JSON.stringify({ input: text, voice: 'alloy' });
+  const url = `http://${OPENCLAW_HOST}:${OPENCLAW_PORT}/v1/audio/speech`;
 
   return new Promise((resolve, reject) => {
-    const proc = spawn(bin, args, { stdio: ['pipe', 'ignore', 'ignore'] });
-    proc.stdin.write(text);
-    proc.stdin.end();
-    proc.on('close', (code) => {
-      if (code === 0) resolve(outPath);
-      else reject(new Error(`Piper exited ${code}`));
+    const req = http.request(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+        ...(OPENCLAW_TOKEN ? { 'Authorization': `Bearer ${OPENCLAW_TOKEN}` } : {}),
+      },
+    }, async (res) => {
+      if (res.statusCode !== 200) {
+        reject(new Error(`TTS ${res.statusCode}`));
+        return;
+      }
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', async () => {
+        const dir = await mkdtemp(join(tmpdir(), 'oc-tts-'));
+        const outPath = join(dir, 'speech.mp3');
+        await writeFile(outPath, Buffer.concat(chunks));
+        resolve(outPath);
+      });
+      res.on('error', reject);
     });
-    proc.on('error', reject);
+    req.on('error', reject);
+    req.write(body);
+    req.end();
   });
 }
 
 async function synthesizeMacOS(text) {
   const dir = await mkdtemp(join(tmpdir(), 'oc-tts-'));
   const outPath = join(dir, 'speech.aiff');
-
   await execFileAsync('say', ['-o', outPath, text], { timeout: 15000 });
-  return outPath;
-}
-
-async function synthesizeEspeak(bin, text) {
-  const dir = await mkdtemp(join(tmpdir(), 'oc-tts-'));
-  const outPath = join(dir, 'speech.wav');
-
-  await execFileAsync(bin, ['-w', outPath, text], { timeout: 15000 });
   return outPath;
 }

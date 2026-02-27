@@ -59,27 +59,6 @@ else
   fi
 fi
 
-# ── Piper TTS ──
-PIPER_DIR="$HOME/piper"
-if [ -f "$PIPER_DIR/piper" ]; then
-  ok "Piper TTS already installed"
-else
-  info "Installing Piper TTS..."
-  mkdir -p "$PIPER_DIR"
-  cd "$PIPER_DIR"
-  # ARM64 release
-  PIPER_VER="2023.11.14-2"
-  wget -q "https://github.com/rhasspy/piper/releases/download/${PIPER_VER}/piper_linux_aarch64.tar.gz" -O piper.tar.gz
-  tar xzf piper.tar.gz --strip-components=1
-  rm piper.tar.gz
-  ok "Piper installed"
-
-  # Download voice model
-  info "Downloading Piper voice model (~90MB)..."
-  mkdir -p models
-  wget -q "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx" -O models/en_US-lessac-medium.onnx
-  wget -q "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json" -O models/en_US-lessac-medium.onnx.json
-  ok "Voice model downloaded"
 fi
 
 # ── ALSA config ──
@@ -140,8 +119,6 @@ if [ ! -f "$ENV_FILE" ]; then
 PORT=3001
 WHISPER_PATH=$HOME/whisper.cpp/build/bin/whisper-cli
 WHISPER_MODEL=$HOME/whisper.cpp/models/ggml-base.en.bin
-PIPER_PATH=$HOME/piper/piper
-PIPER_MODEL=$HOME/piper/models/en_US-lessac-medium.onnx
 ENVEOF
   ok "Created .env file — edit as needed"
 fi

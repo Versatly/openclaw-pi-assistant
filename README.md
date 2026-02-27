@@ -34,7 +34,7 @@ Both mic and Pirate Audio share I2S clock lines:
         ↕ WebSocket (localhost:3001)
 [Node.js Server (Express + WS)]
   ├── arecord 48kHz I2S → whisper.cpp STT
-  ├── Piper TTS → aplay I2S (Pirate Audio)
+  ├── OpenClaw TTS → aplay I2S (Pirate Audio)
   └── OpenClaw Gateway (Claude, GPT, etc)
 ```
 
@@ -75,7 +75,7 @@ server/
   index.js       — Express + WebSocket server
   audio.js       — ALSA record/play (SPH0645 + Pirate Audio)
   stt.js         — whisper.cpp / Python whisper
-  tts.js         — Piper TTS / macOS say fallback
+  tts.js         — OpenClaw TTS / platform fallback
   openclaw.js    — OpenClaw gateway client
 web/
   index.html     — Touch UI (480x320)
