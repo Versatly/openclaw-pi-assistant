@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=480, height=320, initial-scale=1, user-scalable=no">
+  <title>OpenClaw</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Status bar -->
+    <header id="status-bar">
+      <span id="status-icon">🐾</span>
+      <span id="status-text">Hey there</span>
+      <span id="clock"></span>
+    </header>
+
+    <!-- Main area -->
+    <main id="main">
+      <!-- The orb -->
+      <div id="orb-container">
+        <div id="orb-glow"></div>
+        <div id="orb">
+          <div id="orb-face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div id="mouth"></div>
+          </div>
+        </div>
+        <div id="orb-ring"></div>
+      </div>
+
+      <!-- Text area -->
+      <div id="text-area">
+        <div id="user-text" class="text-line"></div>
+        <div id="bot-text" class="text-line"></div>
+      </div>
+    </main>
+
+    <!-- Confirm overlay -->
+    <div id="confirm-overlay" class="hidden">
+      <div id="confirm-box">
+        <div id="confirm-msg"></div>
+        <div id="confirm-buttons">
+          <button id="btn-yes" class="confirm-btn yes">✓ Yes</button>
+          <button id="btn-no" class="confirm-btn no">✗ No</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden"></div>
+
+    <!-- Tap zone (invisible, covers everything) -->
+    <div id="tap-zone"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
